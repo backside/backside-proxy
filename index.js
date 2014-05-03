@@ -3,31 +3,27 @@ var shoe = require("shoe")
 var Proxy = require("./lib/proxy")
 var net = require("net")
 
-function makeRabbitSock(cb) {
-  var sConn = net.connect({host: "localhost", port: "61613"}, function(err) {
-    cb(err, sConn)
-  })
-  return sConn
+function makeRabbitSock() {
+  return net.connect({host: "localhost", port: "61613"})
 }
 
-var sConn = makeRabbitSock(function(err, sConn) {
-  if (err) {
-    throw err
-  }
-  console.log("rabbit is open")
-})
 var sock = shoe(function(conn) {
+  var sConn = makeRabbitSock()
   var proxy = new Proxy(conn, sConn)
-  proxy.on("close", function() {
-    console.log("it closed!")
+  sConn.on("connect", function() {
+    proxy.start()
+    console.log("rabbit is open")
+  })
+
+  proxy.on("severClose", function() {
+    console.log("server closed!")
+  })
+  proxy.on("clientClose", function() {
+    console.log("client closed!")
   })
   proxy.on("error", function(err) {
-    throw err
+    console.log("received fatal error from proxy", err.message)
   })
-})
-
-sock.on("log", function(log) {
-  console.log("from ze websocket", log)
 })
 
 var app = http.createServer()
