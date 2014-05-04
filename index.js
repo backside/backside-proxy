@@ -1,34 +1,49 @@
+var net = require("net")
 var http = require("http")
 var shoe = require("shoe")
-var Proxy = require("./lib/proxy")
-var net = require("net")
+var config = require("./config")
 
-function makeRabbitSock() {
-  return net.connect({host: "localhost", port: "61613"})
+exports.createServers = function(overrideConfig) {
+  config = overrideConfig || config
+
+  return config.resolve(function(proxy, SOCK_PREFIX, logger) {
+    function onConnection(proto, conn) {
+      var p = proxy.createProxy(conn)
+      logger.log("info", "accepted new " + proto + " connection")
+
+      p.on("severClose", function() {
+        logger.log("info", "stomp server closed connection")
+      })
+      p.on("clientClose", function() {
+        logger.log("info", "client closed connection")
+      })
+      p.on("error", function(err) {
+        logger.log("warn", "received fatal error from proxy " + err.message)
+      })
+    }
+    var wsServer = shoe(onConnection.bind(null, "websocket"))
+    var app = http.createServer()
+    wsServer.install(app, SOCK_PREFIX)
+    var tcpServer = net.createServer(onConnection.bind(null, "tcp"))
+    return {ws: app, tcp: tcpServer}
+  })
 }
 
-var sock = shoe(function(conn) {
-  var sConn = makeRabbitSock()
-  var proxy = new Proxy(conn, sConn)
-  sConn.on("connect", function() {
-    proxy.start()
-    console.log("rabbit is open")
-  })
+if (module === require.main) {
+  var PORT = config.get("PORT")
+  var SOCK_PREFIX = config.get("SOCK_PREFIX")
+  var TCP_PORT = config.get("TCP_PORT")
+  var logger = config.get("logger")
 
-  proxy.on("severClose", function() {
-    console.log("server closed!")
-  })
-  proxy.on("clientClose", function() {
-    console.log("client closed!")
-  })
-  proxy.on("error", function(err) {
-    console.log("received fatal error from proxy", err.message)
-  })
-})
-
-var app = http.createServer()
-sock.install(app, "/foo")
-app.listen(4000, function() {
-  console.log("listening")
-})
-
+  var servers = exports.createServers()
+  if (PORT) {
+    servers.ws.listen(PORT, function() {
+      logger.log("info", "websocket server started on " + PORT + " at path " + SOCK_PREFIX)
+    })
+  }
+  if (TCP_PORT) {
+    servers.tcp.listen(TCP_PORT, function() {
+      logger.log("info", "tcp server started on " + TCP_PORT)
+    })
+  }
+}
