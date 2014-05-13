@@ -4,7 +4,7 @@
   "description": "A websocket/STOMP proxy that supports custom auth and intercepting certain operations for backside",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/**/*.js"
+    "test": "mocha test/test*.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,9 @@
     "dependable": "~0.2.5",
     "winston": "~0.7.3",
     "underscore": "~1.6.0"
+  },
+  "devDependencies": {
+    "through": "~2.3.4",
+    "duplexer": "~0.1.1"
   }
 }
