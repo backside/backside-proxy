@@ -12,7 +12,7 @@ var defaults = {
   STOMP_PORT: "61613",
   STOMP_USERNAME: "guest",
   STOMP_PASSWORD: "guest",
-  SOCK_PREFIX: "/"
+  SOCK_PREFIX: "/socks"
 
 }
 for (var key in defaults) {
