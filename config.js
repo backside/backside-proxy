@@ -12,6 +12,7 @@ var defaults = {
   STOMP_PORT: "61613",
   STOMP_USERNAME: "guest",
   STOMP_PASSWORD: "guest",
+  STOMP_EXCHANGE: "backside",
   SOCK_PREFIX: "/socks"
 
 }
