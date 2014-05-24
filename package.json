@@ -25,10 +25,10 @@
     "shoe": "0.0.15",
     "dependable": "~0.2.5",
     "winston": "~0.7.3",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "stomp-proxy": "0.0.0"
   },
   "devDependencies": {
-    "through": "~2.3.4",
-    "duplexer": "~0.1.1"
+    "mocha": "~1.19.0"
   }
 }
