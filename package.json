@@ -26,7 +26,8 @@
     "dependable": "~0.2.5",
     "winston": "~0.7.3",
     "underscore": "~1.6.0",
-    "stomp-proxy": "0.0.0"
+    "stomp-proxy": "0.0.0",
+    "backside-api" : "backside/backside-api#master"
   },
   "devDependencies": {
     "mocha": "~1.19.0"
