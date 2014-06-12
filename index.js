@@ -3,10 +3,14 @@ var http = require("http")
 var shoe = require("shoe")
 var config = require("./config")
 
-exports.createServers = function(overrideConfig) {
+function createServers(overrideConfig, cb) {
+  if (typeof overrideConfig === "function") {
+    cb = overrideConfig
+    overrideConfig = null
+  }
   config = overrideConfig || config
 
-  return config.resolve(function(proxy, SOCK_PREFIX, logger) {
+  config.resolve(function(proxy, SOCK_PREFIX, logger) {
     function onConnection(proto, conn) {
       var p = proxy.createProxy(conn)
       logger.log("info", "accepted new " + proto + " connection")
@@ -25,9 +29,16 @@ exports.createServers = function(overrideConfig) {
     var app = http.createServer()
     wsServer.install(app, SOCK_PREFIX)
     var tcpServer = net.createServer(onConnection.bind(null, "tcp"))
-    return {ws: app, tcp: tcpServer}
+    cb(null, {ws: app, tcp: tcpServer})
   })
 }
+module.exports = {
+  createServers: createServers,
+  getContainer: function() {
+    return container
+  }
+}
+
 
 if (module === require.main) {
   var PORT = config.get("PORT")
@@ -35,15 +46,17 @@ if (module === require.main) {
   var TCP_PORT = config.get("TCP_PORT")
   var logger = config.get("logger")
 
-  var servers = exports.createServers()
-  if (PORT) {
-    servers.ws.listen(PORT, function() {
-      logger.log("info", "websocket server started on " + PORT + " at path " + SOCK_PREFIX)
-    })
-  }
-  if (TCP_PORT) {
-    servers.tcp.listen(TCP_PORT, function() {
-      logger.log("info", "tcp server started on " + TCP_PORT)
-    })
-  }
+  var servers = createServers(function(err, servers) {
+    if (err) throw err
+    if (PORT) {
+      servers.ws.listen(PORT, function() {
+        logger.log("info", "websocket server started on " + PORT + " at path " + SOCK_PREFIX)
+      })
+    }
+    if (TCP_PORT) {
+      servers.tcp.listen(TCP_PORT, function() {
+        logger.log("info", "tcp server started on " + TCP_PORT)
+      })
+    }
+  })
 }
