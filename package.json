@@ -21,13 +21,11 @@
   },
   "dependencies": {
     "stompjs": "~2.3.1",
-    "async": "~0.8.0",
     "shoe": "0.0.15",
     "dependable": "~0.2.5",
     "winston": "~0.7.3",
-    "underscore": "~1.6.0",
     "stomp-proxy": "0.0.2",
-    "backside-api" : "backside/backside-api#master"
+    "backside-api" : "backside/backside-api#modularize"
   },
   "devDependencies": {
     "mocha": "~1.19.0"

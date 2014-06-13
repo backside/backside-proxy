@@ -1,13 +1,12 @@
 
 var path = require("path")
-var dependable = require("dependable")
-var container = dependable.container()
-var _ = require("underscore")
-var winston = require("winston")
+// use the same container as the api so its easy to override!
 var backsideApi = require("backside-api")
+var container = backsideApi.getContainer()
+var winston = require("winston")
 
 var defaults = {
-  PORT: 5000,
+  WS_PORT: 5000,
   TCP_PORT: 5001,
   STOMP_HOST: "localhost",
   STOMP_PORT: "61613",
@@ -23,13 +22,6 @@ for (var key in defaults) {
 
 container.register("logger", function() {
   return winston
-})
-
-backsideApi.initApi(function(err, api) {
-  if (err) throw err
-  container.register("api", function() {
-    return api
-  })
 })
 
 container.load(path.join(__dirname, "lib"))
