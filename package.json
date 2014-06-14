@@ -1,6 +1,6 @@
 {
   "name": "backside-proxy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A websocket/STOMP proxy that supports custom auth and intercepting certain operations for backside",
   "main": "index.js",
   "scripts": {
